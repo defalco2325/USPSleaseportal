@@ -1,0 +1,177 @@
+Goal: Build a clean, modern marketing site for USPS-leased property owners, matching the visual flow and content sections of sellmypostoffice.net while improving clarity, spacing, and polish. Keep all key sections: Nav (Home, Guide 2025, Free Valuation, About, Contact), Hero, How It Works, Valuation CTA band, About + Why, Testimonials, Contact form, Footer. 
+Sell My Post Office
+
+Tech & Quality
+
+React + Vite + TypeScript, Tailwind CSS
+
+Deployed on Netlify (include netlify.toml, _redirects)
+
+Netlify Forms for Contact (no backend, no APIs)
+
+Lighthouse ≥95 (Performance/SEO/Best Practices/Accessibility)
+
+Visual System (clean & premium)
+
+Color: Deep navy #0D1B2A (primary), off-white #F8FAFC bg, cool gray #E5E7EB lines, accent teal #14B8A6 for CTAs.
+
+Type: Inter (700/600 headlines, 400 body). Tight letter-spacing on H1; relaxed line-height on paragraphs.
+
+Layout: 1200px max-width container, generous py-20 section spacing, cards with subtle shadow/rounded-2xl, 12/16pt baseline grid.
+
+Micro-polish: Sticky header with blur/backdrop, soft scroll-to anchors, focus-visible styles, 44px tap targets.
+
+Pages & Sections (content structure)
+
+Global Nav (sticky)
+
+Left: wordmark “Sell My Post Office”
+
+Right links: Home, How to Sell Your Post Office: Complete Guide 2025, FREE Valuation Report (external URL via env var), About, Contact. Mobile = hamburger drawer. 
+Sell My Post Office
+
+Home /
+
+Hero
+
+H1: “Sell Your USPS-Leased Post Office for Top Dollar — Without Paying Broker Fees”
+
+Subhead: 1–2 lines explaining valuation + access to large buyers.
+
+Primary CTA button: Get a Free Property Valuation Report → opens VITE_VALUATION_URL in new tab.
+
+Right/Below: tasteful postal-theme illustration block (no external images).
+
+(Keep the same promise/CTA placement as the original, but reduce text weight and increase whitespace.) 
+Sell My Post Office
+
+How It Works (3 steps with icons)
+
+Request your confidential valuation report
+
+Review no-obligation cash offer (target 48h)
+
+Close fast (target ~45 days), no broker fees
+
+Use horizontal stepper on desktop, vertical stack on mobile. 
+Sell My Post Office
+
+CTA Band — “Not Ready to Sell?”
+
+Title: “Not Ready to Sell Yet? Find Out What Your Post Office Is Worth!”
+
+Button: Get My Free Valuation Report (same external link). 
+Sell My Post Office
+
+About (preview) + “Why Sell With Us?”
+
+4–5 “Why” bullets in a two-column card grid: USPS specialists, nationwide buyers, close in ~45 days, no commission, confidential process. 
+Sell My Post Office
+
+Inline CTA: Start the Process → valuation link.
+
+Testimonials
+
+3–4 quotes in a carousel (auto, pause on hover; swipe on mobile). Include initials + state beneath each quote. 
+Sell My Post Office
+
+Contact Teaser
+
+Mini form preview + link to full Contact page.
+
+Guide /guide
+
+Title: “How to Sell Your Post Office: Complete Guide 2025”
+
+On-page TOC, H2/H3 sections (cap rates, term remaining, comps, timelines, closing costs, FAQs), inline CTAs every ~3 sections. 
+Sell My Post Office
+
+About /about
+
+Mission + who we work with + process recap; CTA to valuation.
+
+Contact /contact
+
+Full form (Name, Email, Subject, Message) with Netlify Forms, success state, spam honeypot, ARIA live errors. Mirror fields seen on the live site while improving labels, spacing, and validation clarity. 
+Sell My Post Office
+
+Footer
+
+Brand line, contact email, minimal links.
+
+Components
+
+Header, MobileNavDrawer, Hero, Steps, ValuePropsGrid, CTASection, TestimonialCarousel, ContactForm, Footer, SEOHead, FAQAccordion (for Guide)
+
+Behavior & UX
+
+All primary CTAs open VITE_VALUATION_URL (target="_blank" rel="noopener").
+
+Smooth-scroll for in-page anchors.
+
+Keyboard-navigable header, menu, accordions.
+
+High-contrast focus rings; links stateful (hover/active/focus).
+
+Copy (starter; paraphrased to be original)
+
+Hero H1: “Sell Your USPS-Leased Post Office for Top Dollar — Without Broker Fees”
+
+Hero subhead: “Get a confidential valuation and a strong cash offer from the largest post office buyers.”
+
+Steps headings: “Request Valuation → Review Offer → Close Fast”
+
+Why bullets: “USPS specialists • Nationwide buyers • ~45-day close • No commissions • Simple & confidential”
+
+CTA buttons: “Get My Free Valuation Report”, “Start the Process”, “Read the 2025 Guide”
+
+Forms (Netlify)
+
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field">
+
+Hidden form-name input, success message without reload.
+
+Required validation: Name, Email, Message.
+
+SEO
+
+Title/meta per page; canonical; OG/Twitter tags.
+
+Lightweight schema: Organization, WebSite, FAQ (Guide).
+
+robots.txt allow; sitemap.xml script in build.
+
+File Layout
+/src
+  /components
+  /pages (Home.tsx, Guide.tsx, About.tsx, Contact.tsx)
+  /assets (logo.svg, decorative shapes)
+  /styles (globals.css, tailwind.css)
+index.html
+vite.config.ts
+tailwind.config.js
+postcss.config.js
+netlify.toml
+_redirects
+robots.txt
+
+Env Vars
+
+VITE_VALUATION_URL="https://<your-form-or-CRM-link>"
+
+(No Google or other API keys needed.)
+
+Acceptance Criteria (visual parity + upgrades)
+
+Same section order & nav labels as the reference site; improved whitespace, typography, and contrast. 
+Sell My Post Office
+
+Hero + three-step explainer + valuation CTA band + About/Why + testimonials + contact form all present.
+
+CTAs consistently route to external valuation URL.
+
+Mobile header uses a clean slide-in drawer; carousel supports touch.
+
+Lighthouse ≥95 on a sample build.
+
+Now generate the project exactly as specified above, matching the referenced site’s content structure while shipping a cleaner, more modern UI—no external APIs required.
