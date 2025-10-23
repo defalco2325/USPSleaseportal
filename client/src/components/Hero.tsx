@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@assets/stock_images/usps_united_states_p_025764f9.jpg";
+import heroImage from "@assets/USPS_1761190745850.webp";
 
 export default function Hero() {
   const valuationUrl = import.meta.env.VITE_VALUATION_URL || "#";
