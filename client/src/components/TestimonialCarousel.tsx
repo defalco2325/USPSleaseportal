@@ -52,7 +52,7 @@ export default function TestimonialCarousel() {
   return (
     <section className="py-20 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             What Property Owners Say
           </h2>
@@ -66,14 +66,14 @@ export default function TestimonialCarousel() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <Card className="p-12 relative" data-testid="card-testimonial">
-            <Quote className="w-12 h-12 text-primary/20 absolute top-8 left-8" />
-            <div className="relative z-10">
+          <Card className="p-12 relative overflow-hidden group hover-elevate transition-all duration-500 hover:shadow-2xl" data-testid="card-testimonial">
+            <Quote className="w-16 h-16 text-primary/10 absolute top-8 left-8 transition-all duration-300 group-hover:text-primary/20 group-hover:scale-110" />
+            <div className="relative z-10 animate-fade-in" key={currentIndex}>
               <p className="text-xl text-foreground leading-relaxed mb-8 text-center italic">
                 "{testimonials[currentIndex].quote}"
               </p>
               <div className="text-center">
-                <p className="font-semibold text-foreground" data-testid="text-testimonial-author">
+                <p className="font-semibold text-foreground text-lg" data-testid="text-testimonial-author">
                   {testimonials[currentIndex].initials}
                 </p>
                 <p className="text-sm text-muted-foreground">{testimonials[currentIndex].state}</p>
@@ -86,6 +86,7 @@ export default function TestimonialCarousel() {
               variant="outline"
               size="icon"
               onClick={goToPrev}
+              className="hover-elevate transition-all duration-300 hover:border-primary hover:text-primary hover:scale-110"
               data-testid="button-testimonial-prev"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -95,8 +96,8 @@ export default function TestimonialCarousel() {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex ? "bg-primary w-8" : "bg-border"
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentIndex ? "bg-primary w-8" : "bg-border w-2 hover:bg-primary/50"
                   }`}
                   data-testid={`button-testimonial-dot-${index}`}
                 />
@@ -106,6 +107,7 @@ export default function TestimonialCarousel() {
               variant="outline"
               size="icon"
               onClick={goToNext}
+              className="hover-elevate transition-all duration-300 hover:border-primary hover:text-primary hover:scale-110"
               data-testid="button-testimonial-next"
             >
               <ChevronRight className="h-5 w-5" />
