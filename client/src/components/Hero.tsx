@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@assets/generated_images/Postal_themed_hero_illustration_36b21af8.png";
+import heroImage from "@assets/stock_images/usps_united_states_p_025764f9.jpg";
 
 export default function Hero() {
   const valuationUrl = import.meta.env.VITE_VALUATION_URL || "#";
@@ -33,8 +33,8 @@ export default function Hero() {
             <div className="rounded-2xl overflow-hidden shadow-xl">
               <img
                 src={heroImage}
-                alt="Post Office Illustration"
-                className="w-full h-auto"
+                alt="USPS Post Office Building"
+                className="w-full h-auto object-cover"
                 data-testid="img-hero"
               />
             </div>

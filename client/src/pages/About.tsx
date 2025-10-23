@@ -4,6 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Users, TrendingUp, Award } from "lucide-react";
+import postOfficeImage from "@assets/stock_images/usps_united_states_p_1bb053d7.jpg";
 
 const values = [
   {
@@ -79,22 +80,31 @@ export default function About() {
                     </p>
                   </div>
                 </div>
-                <Card className="p-8 bg-primary/5 border-primary/20">
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-4xl font-bold text-primary mb-2">500+</h3>
-                      <p className="text-muted-foreground">Properties Sold</p>
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-bold text-primary mb-2">$250M+</h3>
-                      <p className="text-muted-foreground">Total Transaction Value</p>
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-bold text-primary mb-2">0%</h3>
-                      <p className="text-muted-foreground">Broker Commissions Charged</p>
-                    </div>
+                <div>
+                  <div className="rounded-2xl overflow-hidden shadow-xl mb-8">
+                    <img
+                      src={postOfficeImage}
+                      alt="USPS Post Office"
+                      className="w-full h-auto object-cover"
+                    />
                   </div>
-                </Card>
+                  <Card className="p-8 bg-primary/5 border-primary/20">
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-4xl font-bold text-primary mb-2">500+</h3>
+                        <p className="text-muted-foreground">Properties Sold</p>
+                      </div>
+                      <div>
+                        <h3 className="text-4xl font-bold text-primary mb-2">$250M+</h3>
+                        <p className="text-muted-foreground">Total Transaction Value</p>
+                      </div>
+                      <div>
+                        <h3 className="text-4xl font-bold text-primary mb-2">0%</h3>
+                        <p className="text-muted-foreground">Broker Commissions Charged</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
               </div>
             </div>
           </section>
