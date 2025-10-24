@@ -2,6 +2,7 @@ import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import sgMail from "@sendgrid/mail";
 import { z } from "zod";
+import { addOrUpdateValuationIndex } from "./_blobs";
 
 // Initialize SendGrid
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || "";
@@ -336,6 +337,40 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         console.error("SendGrid error:", emailError);
         // Don't fail the request if email fails
       }
+    }
+
+    // Update admin index if ID was provided (marking as stage 3 - completed)
+    if (validated.id) {
+      // Extract address parts
+      let street, city, state, zip;
+      if (formattedAddress) {
+        const addressParts = formattedAddress.split(",").map(p => p.trim());
+        street = addressParts[0] || "";
+        if (addressParts.length >= 2) {
+          const cityState = addressParts[1];
+          const stateZip = addressParts[2] || "";
+          city = cityState;
+          const stateZipMatch = stateZip.match(/([A-Z]{2})\s*(\d{5})/);
+          if (stateZipMatch) {
+            state = stateZipMatch[1];
+            zip = stateZipMatch[2];
+          }
+        }
+      }
+
+      await addOrUpdateValuationIndex({
+        id: validated.id,
+        email: valuationData.email,
+        street,
+        city,
+        state,
+        zip,
+        stage: 3, // Email sent = completed
+        conservative,
+        optimistic,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
     }
 
     return {

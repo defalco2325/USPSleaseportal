@@ -1,6 +1,7 @@
 import { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { z } from "zod";
+import { addOrUpdateValuationIndex, type ValuationIndexEntry } from "./_blobs";
 
 // Validation schemas
 const contactSchema = z.object({
@@ -103,6 +104,15 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       
       await store.set(valuationId, JSON.stringify(valuation));
       
+      // Update admin index
+      await addOrUpdateValuationIndex({
+        id: valuationId,
+        email: valuation.email,
+        stage: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
+      
       return {
         statusCode: 200,
         headers,
@@ -166,6 +176,46 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       };
       
       await store.set(id, JSON.stringify(updated));
+      
+      // Determine stage based on completion status
+      let stage = 1;
+      if (updated.stage2Completed) {
+        stage = 3; // Stage 3 = completed with calculations
+      } else if (updated.stage1Completed) {
+        stage = 2; // Stage 2 = property details in progress
+      }
+      
+      // Extract address parts if available
+      let street, city, state, zip;
+      if (updated.propertyAddress) {
+        const addressParts = updated.propertyAddress.split(",").map(p => p.trim());
+        street = addressParts[0] || "";
+        if (addressParts.length >= 2) {
+          const cityState = addressParts[1];
+          const stateZip = addressParts[2] || "";
+          city = cityState;
+          const stateZipMatch = stateZip.match(/([A-Z]{2})\s*(\d{5})/);
+          if (stateZipMatch) {
+            state = stateZipMatch[1];
+            zip = stateZipMatch[2];
+          }
+        }
+      }
+      
+      // Update admin index
+      await addOrUpdateValuationIndex({
+        id: updated.id,
+        email: updated.email,
+        street,
+        city,
+        state,
+        zip,
+        stage,
+        conservative: updated.lowEstimatedValue || undefined,
+        optimistic: updated.highEstimatedValue || undefined,
+        createdAt: updated.createdAt,
+        updatedAt: updated.updatedAt,
+      });
       
       return {
         statusCode: 200,
