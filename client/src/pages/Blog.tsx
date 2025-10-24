@@ -7,81 +7,17 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getAllBlogPosts } from "@/data/blogPosts";
 
-const blogPosts = [
-  {
-    title: "Understanding USPS Lease Agreements: What Property Owners Need to Know",
-    excerpt: "USPS lease agreements have unique characteristics that impact property value. Learn about common lease terms, renewal options, and how they affect your property's marketability.",
-    category: "Leases & Contracts",
-    date: "January 15, 2025",
-    readTime: "8 min read",
-    featured: true,
-  },
-  {
-    title: "Top 5 Factors That Determine Your Post Office Property Value",
-    excerpt: "Not all USPS-leased properties are valued equally. Discover the key factors that buyers evaluate when making offers on post office buildings.",
-    category: "Valuation",
-    date: "January 10, 2025",
-    readTime: "6 min read",
-    featured: true,
-  },
-  {
-    title: "How to Prepare Your USPS Property for Sale in 2025",
-    excerpt: "A step-by-step checklist to get your post office property market-ready. From gathering documents to understanding buyer expectations.",
-    category: "Sales Tips",
-    date: "January 5, 2025",
-    readTime: "10 min read",
-    featured: false,
-  },
-  {
-    title: "USPS Lease Renewals: What Happens When Your Lease Expires?",
-    excerpt: "Understanding USPS renewal patterns and how upcoming lease expirations impact your property's value and sale timeline.",
-    category: "Leases & Contracts",
-    date: "December 28, 2024",
-    readTime: "7 min read",
-    featured: false,
-  },
-  {
-    title: "Tax Implications of Selling a USPS-Leased Property",
-    excerpt: "Navigate the tax considerations when selling commercial property leased to USPS. Key deductions, capital gains, and 1031 exchange opportunities.",
-    category: "Tax & Legal",
-    date: "December 20, 2024",
-    readTime: "9 min read",
-    featured: false,
-  },
-  {
-    title: "Post Office Investment Trends: What Buyers Look for in 2025",
-    excerpt: "Market insights into buyer preferences, regional demand, and investment strategies for USPS-leased properties.",
-    category: "Market Trends",
-    date: "December 15, 2024",
-    readTime: "8 min read",
-    featured: false,
-  },
-  {
-    title: "Common Mistakes to Avoid When Selling Your Post Office",
-    excerpt: "Learn from others' experiences. Avoid these costly mistakes that can reduce your sale price or delay closing.",
-    category: "Sales Tips",
-    date: "December 10, 2024",
-    readTime: "7 min read",
-    featured: false,
-  },
-  {
-    title: "How Long Does It Take to Sell a USPS-Leased Property?",
-    excerpt: "Realistic timelines from listing to closing, including due diligence, financing, and what can speed up or slow down the process.",
-    category: "Sales Tips",
-    date: "December 5, 2024",
-    readTime: "6 min read",
-    featured: false,
-  },
-  {
-    title: "Evaluating Buyer Offers: Beyond the Purchase Price",
-    excerpt: "Not all offers are created equal. Learn how to evaluate contingencies, closing timelines, and buyer qualifications.",
-    category: "Sales Tips",
-    date: "November 28, 2024",
-    readTime: "8 min read",
-    featured: false,
-  },
-];
+const blogPosts = getAllBlogPosts().map(post => ({
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt,
+  category: post.category,
+  date: post.date,
+  readTime: post.readTime,
+  featured: post.featured,
+}));
 
 const categories = ["All", "Leases & Contracts", "Valuation", "Sales Tips", "Tax & Legal", "Market Trends"];
 
@@ -178,9 +114,9 @@ export default function Blog() {
                       <p className="text-muted-foreground leading-relaxed mb-6 flex-1" data-testid={`text-featured-excerpt-${index}`}>
                         {post.excerpt}
                       </p>
-                      <Link href="/valuation">
+                      <Link href={`/blog/${post.slug}`}>
                         <Button variant="ghost" className="w-fit group/btn" data-testid={`button-read-featured-${index}`}>
-                          Get Free Valuation
+                          Read More
                           <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
                         </Button>
                       </Link>
@@ -199,7 +135,7 @@ export default function Blog() {
               {filteredRecentPosts.length > 0 ? (
                 <div className="grid md:grid-cols-3 gap-8">
                   {filteredRecentPosts.map((post, index) => (
-                  <Link key={index} href="/contact">
+                  <Link key={index} href={`/blog/${post.slug}`}>
                     <Card
                       className="p-6 hover-elevate group transition-all duration-500 hover:shadow-xl hover:-translate-y-2 border-2 border-transparent hover:border-primary/20 animate-fade-in-up cursor-pointer"
                       style={{ animationDelay: `${index * 100}ms` }}
@@ -221,7 +157,7 @@ export default function Blog() {
                             {post.date}
                           </div>
                           <span className="text-xs text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                            Contact Us
+                            Read More
                             <ArrowRight className="w-3 h-3" />
                           </span>
                         </div>
