@@ -9,6 +9,10 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
 import Valuation from "@/pages/Valuation";
+import AdminLogin from "@/pages/admin/Login";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminValuations from "@/pages/admin/Valuations";
+import AdminLeads from "@/pages/admin/Leads";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +24,10 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/blog" component={Blog} />
       <Route path="/valuation" component={Valuation} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/valuations" component={AdminValuations} />
+      <Route path="/admin/leads" component={AdminLeads} />
       <Route component={NotFound} />
     </Switch>
   );
