@@ -14,6 +14,8 @@ import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminValuations from "@/pages/admin/Valuations";
 import AdminLeads from "@/pages/admin/Leads";
+import AdminBlogPosts from "@/pages/admin/BlogPosts";
+import BlogPostForm from "@/pages/admin/BlogPostForm";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,6 +32,9 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/valuations" component={AdminValuations} />
       <Route path="/admin/leads" component={AdminLeads} />
+      <Route path="/admin/blog" component={AdminBlogPosts} />
+      <Route path="/admin/blog/new" component={BlogPostForm} />
+      <Route path="/admin/blog/edit/:id" component={BlogPostForm} />
       <Route component={NotFound} />
     </Switch>
   );

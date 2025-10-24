@@ -1,4 +1,5 @@
 import { useRoute, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -10,10 +11,19 @@ import { getBlogPost, getAllBlogPosts } from "@/data/blogPosts";
 
 export default function BlogPost() {
   const [, params] = useRoute("/blog/:slug");
-  const post = params?.slug ? getBlogPost(params.slug) : undefined;
-  const allPosts = getAllBlogPosts();
+  
+  // Fetch blog posts from API
+  const { data: apiPosts } = useQuery({
+    queryKey: ["/api/blog-posts"],
+    retry: false,
+    staleTime: 60000,
+  });
+
+  // Use API posts if available, otherwise fallback to static
+  const allPosts = apiPosts && apiPosts.length > 0 ? apiPosts : getAllBlogPosts();
+  const post = params?.slug ? allPosts.find((p: any) => p.slug === params.slug) : undefined;
   const relatedPosts = post 
-    ? allPosts.filter(p => p.category === post.category && p.slug !== post.slug).slice(0, 3)
+    ? allPosts.filter((p: any) => p.category === post.category && p.slug !== post.slug).slice(0, 3)
     : [];
 
   if (!post) {

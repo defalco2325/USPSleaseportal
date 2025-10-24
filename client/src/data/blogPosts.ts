@@ -369,3 +369,22 @@ export function getBlogPost(slug: string): BlogPost | undefined {
 export function getAllBlogPosts(): BlogPost[] {
   return blogPosts;
 }
+
+// Fetch blog posts from API with fallback to static data
+export async function fetchBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const response = await fetch("/api/blog-posts");
+    if (response.ok) {
+      const apiPosts = await response.json();
+      // If API has posts, use them; otherwise fallback to static
+      if (apiPosts && apiPosts.length > 0) {
+        return apiPosts;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch blog posts from API, using static data:", error);
+  }
+  
+  // Fallback to static blog posts
+  return blogPosts;
+}

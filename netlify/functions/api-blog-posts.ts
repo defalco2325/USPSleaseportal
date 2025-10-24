@@ -1,6 +1,23 @@
 import type { Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { verifyAuth } from "./_auth";
+import { parseCookies, verifyToken } from "./_auth";
+
+async function verifyAuth(req: Request): Promise<{ authenticated: boolean }> {
+  const cookieHeader = req.headers.get("cookie");
+  const cookies = parseCookies(cookieHeader || "");
+  const token = cookies["admin_token"];
+  
+  if (!token) {
+    return { authenticated: false };
+  }
+  
+  const payload = verifyToken(token);
+  if (!payload || payload.role !== "admin") {
+    return { authenticated: false };
+  }
+  
+  return { authenticated: true };
+}
 
 interface BlogPost {
   id: string;

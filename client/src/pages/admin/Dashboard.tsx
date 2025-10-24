@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
-import { BarChart3, FileText, Users, TrendingUp, ArrowRight } from "lucide-react";
+import { BarChart3, FileText, Users, TrendingUp, ArrowRight, PenSquare } from "lucide-react";
 
 interface Stats {
   totalValuations: number;
@@ -125,14 +125,14 @@ export default function Dashboard() {
                 </Card>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-3">
                 <Card>
                   <CardHeader>
                     <CardTitle>Property Valuations</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      View, manage, and export all property valuation submissions. Resend emails or delete records as needed.
+                      View, manage, and export all property valuation submissions.
                     </p>
                     <Link href="/admin/valuations">
                       <Button className="w-full" data-testid="link-view-valuations">
@@ -149,11 +149,28 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      Browse contact form submissions, export lead data, and manage your pipeline.
+                      Browse contact form submissions and manage your pipeline.
                     </p>
                     <Link href="/admin/leads">
                       <Button className="w-full" data-testid="link-view-leads">
                         View All Leads
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Blog Posts</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Create, edit, and manage your blog content.
+                    </p>
+                    <Link href="/admin/blog">
+                      <Button className="w-full" data-testid="link-view-blog">
+                        Manage Blog Posts
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>

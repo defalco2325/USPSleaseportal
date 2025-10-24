@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -9,20 +10,28 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAllBlogPosts } from "@/data/blogPosts";
 
-const blogPosts = getAllBlogPosts().map(post => ({
-  slug: post.slug,
-  title: post.title,
-  excerpt: post.excerpt,
-  category: post.category,
-  date: post.date,
-  readTime: post.readTime,
-  featured: post.featured,
-}));
-
 const categories = ["All", "Leases & Contracts", "Valuation", "Sales Tips", "Tax & Legal", "Market Trends"];
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  
+  // Fetch blog posts from API with fallback to static data
+  const { data: apiPosts } = useQuery({
+    queryKey: ["/api/blog-posts"],
+    retry: false,
+    staleTime: 60000, // 1 minute
+  });
+
+  // Use API posts if available, otherwise fallback to static
+  const blogPosts = (apiPosts && apiPosts.length > 0 ? apiPosts : getAllBlogPosts()).map((post: any) => ({
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category,
+    date: post.date,
+    readTime: post.readTime,
+    featured: post.featured,
+  }));
 
   const filteredFeaturedPosts = selectedCategory === "All" 
     ? blogPosts.filter(post => post.featured)

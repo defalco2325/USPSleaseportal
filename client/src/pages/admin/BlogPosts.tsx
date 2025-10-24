@@ -58,9 +58,12 @@ export default function AdminBlogPosts() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/blog-posts?id=${id}`, {
+      const response = await fetch(`/api/blog-posts?id=${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
+      if (!response.ok) throw new Error("Failed to delete");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
