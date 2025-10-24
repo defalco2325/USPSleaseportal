@@ -35,7 +35,14 @@ FROM_EMAIL=reports@yourdomain.com
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 SITE_BASE_URL=https://your-netlify-site.netlify.app
 SESSION_SECRET=your_random_secret_here
+
+# Admin Dashboard Credentials (REQUIRED)
+ADMIN_USER=admin
+ADMIN_PASS=your_secure_password_here
+JWT_SECRET=your_long_random_secret_key_here
 ```
+
+**Security Note**: Choose a strong password for `ADMIN_PASS` and generate a long random string for `JWT_SECRET` (e.g., use a password generator or run `openssl rand -base64 32` in terminal).
 
 ### 4. Enable Netlify Blobs
 
@@ -149,9 +156,51 @@ Frontend calls:
 - **Google Maps**: First $200/month free (includes ~40K geocodes + Street Views)
 - **Netlify Blobs**: Free for small datasets (first 1GB)
 
+## Admin Dashboard
+
+The site includes a secure admin dashboard at `/admin` for managing valuations and leads.
+
+### Accessing the Admin Dashboard
+
+1. Navigate to `https://your-site.netlify.app/admin/login`
+2. Log in with the credentials you set in environment variables:
+   - **Username**: Value of `ADMIN_USER`
+   - **Password**: Value of `ADMIN_PASS`
+
+### Changing Admin Credentials
+
+To change your admin username or password:
+
+**For Netlify:**
+1. Go to **Site settings → Environment variables**
+2. Find `ADMIN_USER` and/or `ADMIN_PASS`
+3. Click "Edit" to change the values
+4. Save changes
+5. Trigger a new deployment (or wait for next auto-deploy)
+
+**For Replit:**
+1. Open the "Secrets" tool (🔒 icon in the left sidebar)
+2. Find `ADMIN_USER` and/or `ADMIN_PASS`
+3. Update the values
+4. Restart the application
+
+**Security Best Practices:**
+- Use a strong, unique password (12+ characters with mix of letters, numbers, symbols)
+- Don't reuse passwords from other services
+- Change the default password immediately after first deployment
+- Generate `JWT_SECRET` using: `openssl rand -base64 32` or similar
+
+### Admin Features
+
+- **Dashboard**: View stats (total valuations, completed reports, leads, conversion rate)
+- **Valuations Management**: Browse, search, filter by stage, delete, resend email reports
+- **Leads Management**: View contact form submissions, search, delete
+- **CSV Export**: Download valuation or lead data for analysis
+
 ## Production Checklist
 
 - [ ] All environment variables set
+- [ ] Admin credentials changed from defaults to secure values
 - [ ] SendGrid sender email verified
 - [ ] Google Maps APIs enabled and restricted
 - [ ] Netlify Blobs enabled
@@ -159,3 +208,4 @@ Frontend calls:
 - [ ] Test full valuation flow
 - [ ] Verify emails are being sent
 - [ ] Check Street View images appear in emails
+- [ ] Test admin login at `/admin/login`
