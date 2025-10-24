@@ -1,0 +1,202 @@
+PROMPT FOR REPLIT (copy everything below):
+
+You are upgrading my existing project so it can deploy on Netlify as a static site with serverless functions—no behavior change, just hosting-compatible structure. Do all edits automatically.
+
+Goals
+
+Keep all current pages, styles, scripts, assets, and functionality.
+
+Host the frontend as static files in /public.
+
+Move all backend logic (form submit, valuation API, email, Google Geocoding/Street View) into Netlify Functions under /netlify/functions.
+
+Add type-safe validation with Zod for all incoming API payloads.
+
+Persist partial valuation state using Netlify Blobs (stage 1 → stage 2 return-later flow).
+
+Preserve the custom valuation math and email template.
+
+Ensure everything works after pushing to GitHub and deploying on Netlify (no Replit-only dependencies).
+
+Final repo layout (create/move files as needed)
+/
+  netlify.toml
+  package.json
+  .gitignore
+  .env.example
+  /public                     ← all static assets & pages
+    index.html                ← Home
+    guide.html
+    about.html
+    contact.html
+    sitemap.xml
+    robots.txt
+    /blog/index.html
+    /blog/*.html              ← existing posts
+    /valuation/index.html     ← multi-stage UI
+    /assets/...               ← images (USPS photos), css, js, fonts
+  /netlify/functions
+    api-valuations.ts         ← POST/PATCH/GET CRUD for valuations (Zod + Blobs)
+    api-submit.ts             ← computes dual estimates + Street View + email (Zod)
+
+Netlify wiring
+
+Add a redirect so /api/* maps to functions:
+
+In netlify.toml:
+
+[build]
+publish = "public"
+
+[functions]
+node_bundler = "esbuild"
+external_node_modules = ["@sendgrid/mail","zod","node-fetch"]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+
+
+All frontend code that previously called Express routes must now call:
+
+POST /api/valuations (create stage 1, returns {id})
+
+PATCH /api/valuations/:id (save stage 2)
+
+GET /api/valuations/:id (resume)
+
+POST /api/submit (compute + email; accepts { id })
+
+Serverless functions (TypeScript)
+
+Convert existing server logic into these two functions:
+
+/netlify/functions/api-valuations.ts
+
+Purpose: CRUD for multi-stage valuation.
+
+Storage: Netlify Blobs using keys like val:${id}.
+
+Endpoints:
+
+POST /api/valuations → validate { fullName, email, property? }, create id, save stage 1, return { id }.
+
+PATCH /api/valuations/:id → merge/validate property fields (rentAnnual, taxesAnnual, insuranceAnnual, squareFeet, taxReimbursed), update to stage 2.
+
+GET /api/valuations/:id → return saved JSON.
+
+Validation: Zod schemas for contact + property; respond 400 with error.flatten() on invalid.
+
+/netlify/functions/api-submit.ts
+
+Purpose: Finalize valuation & email report with Google Street View image.
+
+Input: { id } OR full payload { contact, property }. If id is provided, load from Blobs.
+
+Calculation (keep my current logic; if missing, use this):
+
+NOI = AnnualRent – (taxReimbursed ? 0 : Taxes) – Insurance – (SquareFeet × 1.75)
+
+Conservative = round(max(NOI / 0.12, 0))
+
+Optimistic = round(max(NOI / 0.08, 0))
+
+Geocode + Street View Static: use my GOOGLE_MAPS_API_KEY; include formatted address in the email.
+
+Email: send via SendGrid from FROM_EMAIL; keep/upgrade my current HTML template (brand colors, USPS imagery, legal line “Imagery © Google. Not a formal appraisal.”).
+
+Return JSON { ok: true, conservative, optimistic } after sending.
+
+Frontend adjustments
+
+Move all HTML pages to /public. Ensure <form> submissions or JS fetch() calls point to the new endpoints under /api/*.
+
+Valuation page (/public/valuation/index.html):
+
+Stage 1: collects contact; on submit: POST /api/valuations → store id in localStorage.
+
+Stage 2: collects property fields; on save: PATCH /api/valuations/:id.
+
+Stage 3: calls POST /api/submit with { id }, displays both estimates and a “sent to your email” message. (Optional: show a small Street View preview client-side, but do not expose API key in the browser.)
+
+Show a progress indicator (1→2→3) and handle resume by reading localStorage.id and GET /api/valuations/:id.
+
+Keep/upgrade existing features
+
+Pages: Home, Guide, About, Contact, Blog (6 categories, 9 posts), Valuation.
+
+Home components: hero, how-it-works, CTA band, 6 value props, recent sales, testimonials carousel, FAQ accordion, contact form.
+
+Legal modals (privacy/terms/disclaimer) remain; link/button opens modals.
+
+Design system: USPS blue #004B87, red #DA291C, white; Inter font; smooth fade-ins/hover/card lifts; sticky header with scroll effects; fully responsive.
+
+SEO: Titles + descriptions, Open Graph tags on key pages, sitemap.xml + robots.txt, basic Article JSON-LD on blog posts.
+
+Environment variables
+
+Create .env.example at repo root with:
+
+SENDGRID_API_KEY=
+FROM_EMAIL=reports@clientdomain.com
+GOOGLE_MAPS_API_KEY=
+SITE_BASE_URL=https://www.clientdomain.com
+
+
+Do not commit a real .env. Ensure functions read from process.env.
+
+Dependencies
+
+Add/ensure:
+
+"@sendgrid/mail", "zod", "node-fetch"
+
+Dev: "netlify-cli", "typescript" (functions are .ts and bundled by Netlify esbuild)
+
+package.json minimal:
+
+{
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo \"Static site only\" && exit 0"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.21.0",
+    "typescript": "^5.6.2"
+  }
+}
+
+Hardening & polish
+
+Replace any fetch('http://localhost:3000/...') with relative paths (/api/...).
+
+Remove Express-specific code from the frontend. No server-side rendering needed.
+
+If any Node-only libraries were used in client code, replace with browser-safe equivalents.
+
+Add a gentle error UI for 400/500 responses on valuation pages.
+
+Lighthouse: keep performance/SEO/accessibility best practices (preload Inter, compress images, set meta/OG, defer non-critical JS).
+
+Acceptance tests (must pass locally with netlify dev and on Netlify after deploy)
+
+Stage 1 create returns { id } and persists to Blobs.
+
+Stage 2 patch merges property data; GET by id returns merged object.
+
+Submit emails the dual estimates; API returns { ok: true, conservative, optimistic }.
+
+Blog category filters work; 9 articles render.
+
+Legal modals open; SEO tags present; sitemap & robots accessible.
+
+No calls reference localhost:3000 or Replit URLs; only /api/*.
+
+When done, list exactly which files were created/modified/removed and show me a brief diff summary for each major change.
