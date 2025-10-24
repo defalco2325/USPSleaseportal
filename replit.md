@@ -87,6 +87,40 @@ Preferred communication style: Simple, everyday language.
 - Direct backend API endpoint (rejected: adds unnecessary complexity)
 - Third-party form services like Formspree (rejected: Netlify Forms is simpler for this use case)
 
+### Admin Dashboard
+
+**Authentication:**
+- JWT-based authentication with HttpOnly cookies (secure, httpOnly, sameSite: strict)
+- Environment-based credentials (ADMIN_USER, ADMIN_PASS, JWT_SECRET)
+- System fails fast at startup if credentials not configured (security-first approach)
+- Protected routes redirect unauthenticated users to login
+
+**Admin Endpoints (Netlify Functions):**
+- `/api/admin/login` - POST login with JWT cookie issuance
+- `/api/admin/me` - GET authentication check
+- `/api/admin/stats` - GET dashboard statistics (totals, conversion rate)
+- `/api/admin/valuations` - GET list with search/filter/pagination, DELETE by ID, POST resend email
+- `/api/admin/leads` - GET list with search/pagination, DELETE by ID
+- `/api/admin/export` - GET CSV export (valuations or leads)
+
+**Admin Data Indexes:**
+- Valuations stored as `val:${id}`, indexed via `vals:index` (JSON array)
+- Leads stored as `lead:${id}`, indexed via `leads:index` (JSON array)
+- Indexes maintained automatically by existing endpoints (api-valuations.ts, api-submit.ts)
+- Stage tracking: 1 (contact only) → 2 (property details) → 3 (email sent)
+
+**Admin UI Pages:**
+- `/admin/login` - Login form with validation
+- `/admin` - Dashboard with stat cards (totals, conversion rate)
+- `/admin/valuations` - Table with search, stage filter, pagination, resend, delete
+- `/admin/leads` - Table with search, pagination, delete
+
+**Security Features:**
+- No default credentials (fails at startup if missing)
+- JWT tokens stored in HttpOnly cookies (not accessible via JavaScript)
+- All admin endpoints verify JWT before processing
+- CORS headers configured for security
+
 ### External Service Integration
 
 **Valuation Calculator:**
@@ -123,8 +157,16 @@ Preferred communication style: Simple, everyday language.
 - Serverless functions with Netlify Blobs storage
 - Automated email reports with SendGrid
 - Google Maps integration for Street View images
+- Admin dashboard with JWT authentication
 - Files: `netlify.toml`, `/netlify/functions/`
-- Environment variables: `SENDGRID_API_KEY`, `GOOGLE_MAPS_API_KEY`, `FROM_EMAIL`, `SITE_BASE_URL`
+- **Required Environment Variables:**
+  - `SENDGRID_API_KEY` - SendGrid API key for email reports
+  - `GOOGLE_MAPS_API_KEY` - Google Maps API key for geocoding and Street View
+  - `FROM_EMAIL` - Email address for sending reports
+  - `SITE_BASE_URL` - Base URL of the site (e.g., https://sellmypostoffice.com)
+  - `ADMIN_USER` - Admin username for dashboard login (required, no default)
+  - `ADMIN_PASS` - Admin password for dashboard login (required, no default)
+  - `JWT_SECRET` - Secret key for JWT token signing (required, no default, use strong random value)
 - See `NETLIFY_DEPLOYMENT.md` for complete setup guide
 
 **SEO Optimization:**
