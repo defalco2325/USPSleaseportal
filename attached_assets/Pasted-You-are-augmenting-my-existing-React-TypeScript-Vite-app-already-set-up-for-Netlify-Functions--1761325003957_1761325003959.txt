@@ -1,0 +1,234 @@
+You are augmenting my existing React + TypeScript + Vite app (already set up for Netlify Functions) by adding a secure /admin CRM. Do not remove or refactor current features. Keep all existing pages, styles, valuation endpoints, and behavior intact. Only add what’s needed and minimally wire it up.
+
+Architecture & Constraints
+
+Frontend: React 18 + TypeScript + Vite (existing). Use React Router for a new /admin area.
+
+Backend: Netlify Functions (TypeScript). Store CRM data in Netlify Blobs (MVP), same as the valuation persistence pattern.
+
+Hosting: Netlify. Keep/extend the existing netlify.toml. The SPA fallback and /api/* redirects must still work.
+
+Security: Admin auth via JWT in HTTP-only Secure cookie. No secrets in the browser. Role-based access (admin, agent, viewer).
+
+Do NOT break or modify
+
+Existing public pages and routes.
+
+Existing valuation API endpoints (/api/valuations, /api/submit) and any public forms.
+
+Existing styles, fonts, brand tokens, and layout.
+
+Existing environment variables.
+
+Files to ADD (create only)
+
+Frontend
+
+src/pages/admin/Login.tsx
+
+src/pages/admin/Dashboard.tsx
+
+src/pages/admin/Leads.tsx
+
+src/pages/admin/LeadDetail.tsx
+
+src/pages/admin/Kanban.tsx
+
+src/pages/admin/Reports.tsx
+
+src/pages/admin/Settings.tsx
+
+src/components/admin/ProtectedRoute.tsx (guards /admin routes via /api/auth/me)
+
+src/components/admin/DataTable.tsx (virtualized table w/ search, sort, column toggle)
+
+src/components/admin/LeadDrawer.tsx (slides over with lead details, notes, activities)
+
+src/components/admin/NoteList.tsx, src/components/admin/TaskList.tsx
+
+src/components/admin/StatusBadge.tsx, src/components/admin/TagPicker.tsx
+
+src/features/admin/api.ts (thin API client using fetch + TanStack Query)
+
+src/features/admin/state.ts (Zustand for UI state like filters, drawer open)
+
+src/features/admin/schemas.ts (Zod schemas for Lead/Note/Task/User)
+
+src/features/admin/hooks.ts (hooks for queries/mutations)
+
+src/styles/admin.css (use existing tokens; add minimal utilities if needed)
+
+Router glue: update src/main.tsx (or wherever Router lives) to add:
+
+/admin/login
+
+/admin (ProtectedRoute → Dashboard)
+
+/admin/leads
+
+/admin/leads/:id
+
+/admin/kanban
+
+/admin/reports
+
+/admin/settings
+Ensure SPA fallback already present in netlify.toml continues to work.
+
+Netlify Functions (TypeScript)
+
+netlify/functions/api-auth-login.ts — POST email/password → set JWT cookie
+
+netlify/functions/api-auth-me.ts — GET → returns user object if JWT valid
+
+netlify/functions/api-leads.ts — GET list (filters, search, pagination), POST create lead
+
+netlify/functions/api-leads-id.ts — GET one, PATCH update, DELETE archive
+
+netlify/functions/api-notes.ts — POST create note (leadId param), GET list notes
+
+netlify/functions/api-tasks.ts — GET list tasks, POST create, PATCH update
+
+netlify/functions/api-export.ts — GET → CSV export (admin-only)
+
+netlify/functions/_auth.ts — shared helpers: requireAdmin, requireUser, signToken, cookie parsing
+
+All functions validate input/output with Zod and store records in Netlify Blobs with keys:
+
+lead:${id}, note:${leadId}:${noteId}, task:${leadId}:${taskId}, activity:${date}:${uuid}
+
+Netlify config (extend, don’t replace)
+
+Keep existing [[redirects]] rules. Ensure:
+
+/api/* → /.netlify/functions/:splat (200)
+
+SPA fallback /* → /index.html (200)
+
+Ensure external_node_modules includes: zod, jsonwebtoken, and anything already used.
+
+Data Model (Zod — keep consistent across FE/BE)
+
+Lead: id, createdAt, updatedAt, ownerId?, status('New'|'Qualified'|'Offer'|'ClosedWon'|'ClosedLost'), name, company?, email?, phone?, source?, tags: string[], score?: number, revenuePotential?: number, address?: { street, city, state, zip }, customFields?: Record<string,unknown>
+
+Note: id, leadId, authorId, body, createdAt
+
+Task: id, leadId, assigneeId?, title, dueAt?, status('Open'|'Done'), priority('Low'|'Med'|'High')
+
+User (for auth result): id, name, email, role('admin'|'agent'|'viewer'), avatar?
+
+Admin Features to Implement
+
+Auth flow:
+
+/admin/login posts to /api/auth/login (email+password env-driven for MVP).
+
+On success, server sets admin_token (HTTP-only, Secure, SameSite=Strict, Path=/).
+
+ProtectedRoute pings /api/auth/me to gate access.
+
+Leads table (fast):
+
+Infinite/virtualized scroll, column filters (status, owner, tags), global search.
+
+Bulk select → bulk status change / tag add.
+
+Row click opens LeadDrawer with tabs: Details, Notes, Tasks, Activity.
+
+Lead detail:
+
+View/edit contact + property fields (re-use valuation fields if present).
+
+Show Conservative/Optimistic values if stored from valuation flow.
+
+“Resend Valuation” button → calls existing /api/submit (server-side).
+
+Kanban:
+
+Columns by pipeline stage; drag-and-drop to change status; persists via PATCH.
+
+Tasks:
+
+Per-lead tasks and a global list; quick add, due date, priority, mark done.
+
+Notes:
+
+Rich text (basic), @mention stub, timestamps; stored per lead.
+
+Reports:
+
+Simple charts (Recharts): leads by source, win rate by stage, revenuePotential sums.
+
+Settings:
+
+Manage pipeline stages, tags, team members (seed minimal for MVP).
+
+Export:
+
+/api/export CSV (admin only) with core lead fields and status.
+
+UI/UX Requirements
+
+Keep current branding; add a polished admin theme that complements it.
+
+Sticky topbar with global search + quick add lead.
+
+Left nav with icons/labels (Dashboard, Leads, Kanban, Reports, Settings).
+
+Smooth animations (Framer Motion) for drawers, modals, hover/card lifts.
+
+Keyboard shortcuts: Cmd/Ctrl+K command palette (jump to lead, create lead).
+
+Mobile-friendly admin layouts.
+
+Env Vars (add to .env.example, don’t commit real values)
+
+JWT_SECRET=
+
+ADMIN_EMAIL= (MVP)
+
+ADMIN_PASSWORD= (MVP)
+
+Reuse existing: SENDGRID_API_KEY, GOOGLE_MAPS_API_KEY, FROM_EMAIL, etc.
+
+Wiring & Safety
+
+Don’t leak secrets to the client.
+
+All mutating endpoints require valid JWT (requireAdmin or requireUser).
+
+Return 401/403 appropriately. Sanitize/validate all inputs (Zod).
+
+Use Blobs for storage; structure keys by namespace and include indexes for listing (e.g., maintain a leads:index array with {id, name, status, createdAt} to paginate quickly).
+
+Leave TODO markers where a future Postgres/Supabase swap would go (data access layer).
+
+Acceptance Criteria (must pass)
+
+Existing site continues to build and run locally and on Netlify unchanged.
+
+Visiting /admin/login shows branded login; valid creds set cookie; redirect to /admin.
+
+/admin/leads loads a paginated/virtualized table with search/filter; creating a lead persists and appears immediately.
+
+Opening a row shows LeadDrawer with editable details, notes, tasks, and activity.
+
+Dragging a card in Kanban updates status and reflects in table.
+
+“Resend valuation” on a lead with address data triggers the existing server flow without exposing keys.
+
+/api/export downloads a CSV when logged in as admin; 401 otherwise.
+
+Refreshing the browser in any /admin route remains authenticated via cookie.
+
+Lighthouse stays high; no console errors; types pass.
+
+At the end, output:
+
+The list of new files created and existing files modified.
+
+A short summary of router changes.
+
+Any new dependencies added to package.json.
+
+Any netlify.toml diff applied.
