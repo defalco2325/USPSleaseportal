@@ -1,0 +1,101 @@
+Choose Option 2: keep React + TypeScript + Vite, deploy on Netlify, add Functions.
+Here’s the exact conversion so nothing breaks.
+
+Repo layout (keep your React app as-is)
+/ (repo root)
+  netlify.toml
+  package.json
+  tsconfig.json
+  vite.config.ts
+  /src                ← your current React/TS code (unchanged)
+  /public             ← your current public assets (unchanged)
+  /netlify/functions  ← NEW: serverless API (TS)
+    api-valuations.ts
+    api-submit.ts
+
+netlify.toml (Vite build + SPA routing + Functions)
+[build]
+command = "npm run build"
+publish = "dist"
+
+[functions]
+node_bundler = "esbuild"
+external_node_modules = ["@sendgrid/mail", "node-fetch", "zod"]
+
+# Map /api/* → functions
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+
+# SPA fallback (React Router)
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+package.json (scripts + deps)
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "dev:netlify": "netlify dev"   // optional: local functions + Vite
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@sendgrid/mail": "^8.1.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "typescript": "^5.6.2",
+    "netlify-cli": "^17.21.0"
+  }
+}
+
+Frontend changes (tiny)
+
+Keep your components and React Router exactly as they are.
+
+Update any API calls to use your own API paths:
+
+POST /api/valuations
+
+PATCH /api/valuations/:id
+
+GET /api/valuations/:id
+
+POST /api/submit
+
+Example (inside a React hook/action):
+
+await fetch("/api/valuations", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ fullName, email })
+}).then(r => r.json());
+
+
+Do not expose Google or SendGrid keys in React; those live only in Functions.
+
+Functions (TypeScript, live under /netlify/functions)
+
+Use the same logic we already discussed; just drop it into these files:
+
+api-valuations.ts → create/update/fetch valuation records (Zod-validated), store partial state with Netlify Blobs.
+
+api-submit.ts → compute dual estimates, call Google Geocoding + Street View and SendGrid to email the report.
+
+You don’t have to touch React components (Hero/FAQ/Testimonials/etc.) at all.
+
+Environment variables (Netlify → Site settings → Environment)
+SENDGRID_API_KEY=...
+FROM_EMAIL=reports@yourdomain.com
+GOOGLE_MAPS_API_KEY=...   # restrict to Geocoding + Street View Static
+SITE_BASE_URL=https://www.yoursite.com
+
+
+Enable Data → Blobs in the site settings (default store is fine).
