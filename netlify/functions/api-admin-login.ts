@@ -31,8 +31,18 @@ export const handler: Handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const { username, password } = loginSchema.parse(body);
 
-    const adminUser = process.env.ADMIN_USER || "admin";
-    const adminPass = process.env.ADMIN_PASS || "change-me";
+    const adminUser = process.env.ADMIN_USER;
+    const adminPass = process.env.ADMIN_PASS;
+
+    // Fail fast if admin credentials are not configured
+    if (!adminUser || !adminPass) {
+      console.error("FATAL: ADMIN_USER and ADMIN_PASS environment variables are required");
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: "Server configuration error" }),
+      };
+    }
 
     if (username !== adminUser || password !== adminPass) {
       return {

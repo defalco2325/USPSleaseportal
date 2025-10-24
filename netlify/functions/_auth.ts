@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
 import type { HandlerEvent } from "@netlify/functions";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default-secret-change-me";
+// Fail fast if JWT_SECRET is not configured
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("FATAL: JWT_SECRET environment variable is required for admin authentication");
+}
+
 const COOKIE_NAME = "admin_token";
 
 export interface JWTPayload {
