@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -177,10 +178,12 @@ export default function Blog() {
                       <p className="text-muted-foreground leading-relaxed mb-6 flex-1" data-testid={`text-featured-excerpt-${index}`}>
                         {post.excerpt}
                       </p>
-                      <Button variant="ghost" className="w-fit group/btn" data-testid={`button-read-featured-${index}`}>
-                        Read More
-                        <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
-                      </Button>
+                      <Link href="/valuation">
+                        <Button variant="ghost" className="w-fit group/btn" data-testid={`button-read-featured-${index}`}>
+                          Get Free Valuation
+                          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                        </Button>
+                      </Link>
                     </div>
                   </Card>
                   ))}
@@ -196,34 +199,35 @@ export default function Blog() {
               {filteredRecentPosts.length > 0 ? (
                 <div className="grid md:grid-cols-3 gap-8">
                   {filteredRecentPosts.map((post, index) => (
-                  <Card
-                    key={index}
-                    className="p-6 hover-elevate group transition-all duration-500 hover:shadow-xl hover:-translate-y-2 border-2 border-transparent hover:border-primary/20 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                    data-testid={`card-post-${index}`}
-                  >
-                    <div className="flex flex-col h-full">
-                      <Badge variant="outline" className="w-fit mb-3 text-xs" data-testid={`badge-category-${index}`}>
-                        {post.category}
-                      </Badge>
-                      <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors" data-testid={`text-post-title-${index}`}>
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1" data-testid={`text-post-excerpt-${index}`}>
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between pt-4 border-t border-border">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          {post.date}
+                  <Link key={index} href="/contact">
+                    <Card
+                      className="p-6 hover-elevate group transition-all duration-500 hover:shadow-xl hover:-translate-y-2 border-2 border-transparent hover:border-primary/20 animate-fade-in-up cursor-pointer"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                      data-testid={`card-post-${index}`}
+                    >
+                      <div className="flex flex-col h-full">
+                        <Badge variant="outline" className="w-fit mb-3 text-xs" data-testid={`badge-category-${index}`}>
+                          {post.category}
+                        </Badge>
+                        <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors" data-testid={`text-post-title-${index}`}>
+                          {post.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1" data-testid={`text-post-excerpt-${index}`}>
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between pt-4 border-t border-border">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {post.date}
+                          </div>
+                          <span className="text-xs text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                            Contact Us
+                            <ArrowRight className="w-3 h-3" />
+                          </span>
                         </div>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {post.readTime}
-                        </span>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                   ))}
                 </div>
               ) : (
