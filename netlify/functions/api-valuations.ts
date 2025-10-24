@@ -112,7 +112,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     // GET /api/valuations/:id - Retrieve valuation
     if (httpMethod === "GET" && hasId) {
-      const data = await store.get(id);
+      const data = await store.get(id, { type: "text" });
       
       if (!data) {
         return {
@@ -131,7 +131,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     // PATCH /api/valuations/:id - Update valuation (Stage 2)
     if (httpMethod === "PATCH" && hasId) {
-      const existingData = await store.get(id);
+      const existingData = await store.get(id, { type: "text" });
       
       if (!existingData) {
         return {

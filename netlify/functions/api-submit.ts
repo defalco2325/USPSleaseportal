@@ -260,7 +260,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     // If ID provided, load from Blobs
     if (validated.id) {
       const store = getStore("valuations");
-      const storedData = await store.get(validated.id);
+      const storedData = await store.get(validated.id, { type: "text" });
       
       if (!storedData) {
         return {

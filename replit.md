@@ -6,7 +6,7 @@ This is a modern marketing website for USPS-leased property owners looking to se
 
 **Primary Goal:** Convert visitors into leads by offering free property valuations and connecting them with nationwide buyers.
 
-**Tech Stack:** React + TypeScript + Vite frontend, Express backend (minimal API usage), Tailwind CSS with shadcn/ui components, deployed on Netlify with form handling.
+**Tech Stack:** React + TypeScript + Vite frontend, Express backend (for Replit) or Netlify Functions (for Netlify deployment), Tailwind CSS with shadcn/ui components. Supports dual deployment: Replit or Netlify with serverless functions.
 
 ## User Preferences
 
@@ -33,7 +33,8 @@ Preferred communication style: Simple, everyday language.
 - `/guide` - Complete selling guide with detailed content sections
 - `/about` - Company mission and values
 - `/contact` - Contact form for inquiries
-- `/blog` - Blog listing page (content placeholders)
+- `/blog` - Blog listing page with category filtering (6 categories, 9 articles)
+- `/valuation` - Multi-stage property valuation calculator
 
 **Design Principles:**
 - Mobile-first responsive design
@@ -44,11 +45,18 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 
-**Server:** Express.js with TypeScript (minimal implementation)
-- Development mode uses Vite dev server with HMR
-- Production serves static built files
-- Currently uses in-memory storage (MemStorage class) for any data persistence needs
-- API routes prefixed with `/api` (though currently no active API endpoints)
+**Dual Backend Support:**
+
+1. **Express Server** (Replit deployment)
+   - Development mode uses Vite dev server with HMR
+   - In-memory storage for valuations
+   - API routes in `server/routes.ts`
+
+2. **Netlify Functions** (Netlify deployment)
+   - Serverless functions in `/netlify/functions/`
+   - `api-valuations.ts` - CRUD with Netlify Blobs storage
+   - `api-submit.ts` - Email with SendGrid + Google Maps integration
+   - Persistent storage via Netlify Blobs (replaces in-memory)
 
 **Build Process:**
 - Client: Vite builds to `dist/public`
@@ -81,10 +89,23 @@ Preferred communication style: Simple, everyday language.
 
 ### External Service Integration
 
-**Valuation Report CTA:**
-- External URL configured via `VITE_VALUATION_URL` environment variable
-- Opens in new tab when users click "Get Free Valuation" buttons
-- This is likely a third-party landing page or funnel for lead capture
+**Valuation Calculator:**
+- Built-in multi-stage form at `/valuation`
+- Stage 1: Contact information (saves immediately)
+- Stage 2: Property details with calculation
+- Stage 3: Results display with email confirmation
+
+**Email Service (Netlify Functions only):**
+- SendGrid integration for automated valuation reports
+- Professionally designed HTML email with:
+  - Dual estimates (conservative & optimistic)
+  - Google Street View image of property
+  - Detailed cost breakdown
+  - USPS branded styling
+
+**Google Maps API (Netlify Functions only):**
+- Geocoding API for address validation
+- Street View Static API for property images in emails
 
 **Google Fonts:**
 - Inter font family loaded from Google Fonts CDN
@@ -92,11 +113,19 @@ Preferred communication style: Simple, everyday language.
 
 ### Deployment Strategy
 
-**Platform:** Netlify (configured but deployment files not present in repository)
-- Static site hosting with automatic builds
-- Netlify Forms for contact form handling
-- Required files: `netlify.toml` (config), `_redirects` (SPA routing)
-- Environment variable: `VITE_VALUATION_URL` for external valuation link
+**Option 1: Replit**
+- Uses Express backend with in-memory storage
+- Simple one-click publish
+- Automatic HTTPS and custom domain support
+- Suitable for prototyping and development
+
+**Option 2: Netlify** (Recommended for Production)
+- Serverless functions with Netlify Blobs storage
+- Automated email reports with SendGrid
+- Google Maps integration for Street View images
+- Files: `netlify.toml`, `/netlify/functions/`
+- Environment variables: `SENDGRID_API_KEY`, `GOOGLE_MAPS_API_KEY`, `FROM_EMAIL`, `SITE_BASE_URL`
+- See `NETLIFY_DEPLOYMENT.md` for complete setup guide
 
 **SEO Optimization:**
 - Custom SEOHead component manages meta tags per page
@@ -119,10 +148,16 @@ Preferred communication style: Simple, everyday language.
 - **zod:** Schema validation for forms and API contracts
 - **@hookform/resolvers:** Integration between react-hook-form and zod
 
-### Database (Configured for Future Use)
-- **Drizzle ORM:** Type-safe SQL query builder
-- **@neondatabase/serverless:** PostgreSQL driver for Neon (serverless Postgres)
-- **connect-pg-simple:** PostgreSQL session store (prepared for future authentication)
+### Database & Storage
+- **Drizzle ORM:** Type-safe SQL query builder (configured but not actively used)
+- **@neondatabase/serverless:** PostgreSQL driver for Neon (optional)
+- **connect-pg-simple:** PostgreSQL session store (prepared for future auth)
+- **Netlify Blobs:** Serverless key-value storage (used in Netlify Functions)
+- **MemStorage:** In-memory storage (used in Express backend)
+
+### Email & Communication
+- **@sendgrid/mail:** Email service for valuation reports (Netlify Functions only)
+- **Google Maps APIs:** Geocoding + Street View for property visualization (Netlify Functions only)
 
 ### Styling & Utilities
 - **Tailwind CSS:** Utility-first CSS framework
