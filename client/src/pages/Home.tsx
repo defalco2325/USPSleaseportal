@@ -4,6 +4,8 @@ import HowItWorks from "@/components/HowItWorks";
 import CTABand from "@/components/CTABand";
 import ValuePropsGrid from "@/components/ValuePropsGrid";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
+import RecentSales from "@/components/RecentSales";
+import FAQ from "@/components/FAQ";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -25,7 +27,9 @@ export default function Home() {
           <HowItWorks />
           <CTABand />
           <ValuePropsGrid />
+          <RecentSales />
           <TestimonialCarousel />
+          <FAQ />
           
           {/* Contact Teaser */}
           <section className="py-20 bg-background">

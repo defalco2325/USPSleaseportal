@@ -21,6 +21,7 @@ export default function Header() {
     { href: "/guide", label: "How to Sell Your Post Office: Complete Guide 2025" },
     { href: import.meta.env.VITE_VALUATION_URL || "#", label: "FREE Valuation Report", external: true },
     { href: "/about", label: "About" },
+    { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
   ];
 
