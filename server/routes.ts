@@ -94,6 +94,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Blog post endpoints
+  app.get("/api/blog-posts", async (req, res) => {
+    try {
+      const { id } = req.query;
+      
+      if (id && typeof id === "string") {
+        const post = await storage.getBlogPost(id);
+        if (!post) {
+          res.status(404).json({ error: "Blog post not found" });
+          return;
+        }
+        res.json(post);
+      } else {
+        const posts = await storage.getAllBlogPosts();
+        res.json(posts);
+      }
+    } catch (error) {
+      console.error("Error fetching blog posts:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+  app.post("/api/blog-posts", async (req, res) => {
+    try {
+      const post = await storage.createBlogPost(req.body);
+      res.status(201).json(post);
+    } catch (error) {
+      console.error("Error creating blog post:", error);
+      res.status(400).json({ error: "Invalid blog post data" });
+    }
+  });
+
+  app.put("/api/blog-posts", async (req, res) => {
+    try {
+      const { id, ...updates } = req.body;
+      
+      if (!id) {
+        res.status(400).json({ error: "Missing post ID" });
+        return;
+      }
+
+      const post = await storage.updateBlogPost(id, updates);
+      
+      if (!post) {
+        res.status(404).json({ error: "Blog post not found" });
+        return;
+      }
+      
+      res.json(post);
+    } catch (error) {
+      console.error("Error updating blog post:", error);
+      res.status(400).json({ error: "Invalid update data" });
+    }
+  });
+
+  app.delete("/api/blog-posts", async (req, res) => {
+    try {
+      const { id } = req.query;
+      
+      if (!id || typeof id !== "string") {
+        res.status(400).json({ error: "Missing post ID" });
+        return;
+      }
+
+      const deleted = await storage.deleteBlogPost(id);
+      
+      if (!deleted) {
+        res.status(404).json({ error: "Blog post not found" });
+        return;
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting blog post:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

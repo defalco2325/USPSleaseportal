@@ -1,6 +1,27 @@
 import { type User, type InsertUser, type Valuation, type InsertValuation } from "@shared/schema";
 import { randomUUID } from "crypto";
 
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  readTime: string;
+  featured: boolean;
+  content: {
+    intro: string;
+    sections: {
+      heading: string;
+      content: string;
+    }[];
+    conclusion: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -11,15 +32,24 @@ export interface IStorage {
   updateValuation(id: string, valuation: Partial<InsertValuation>): Promise<Valuation | undefined>;
   getValuation(id: string): Promise<Valuation | undefined>;
   getAllValuations(): Promise<Valuation[]>;
+
+  // Blog post methods
+  createBlogPost(post: Omit<BlogPost, "id" | "createdAt" | "updatedAt">): Promise<BlogPost>;
+  updateBlogPost(id: string, post: Partial<Omit<BlogPost, "id" | "createdAt">>): Promise<BlogPost | undefined>;
+  getBlogPost(id: string): Promise<BlogPost | undefined>;
+  getAllBlogPosts(): Promise<BlogPost[]>;
+  deleteBlogPost(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private valuations: Map<string, Valuation>;
+  private blogPosts: Map<string, BlogPost>;
 
   constructor() {
     this.users = new Map();
     this.valuations = new Map();
+    this.blogPosts = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -97,6 +127,48 @@ export class MemStorage implements IStorage {
     return Array.from(this.valuations.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
+  }
+
+  async createBlogPost(post: Omit<BlogPost, "id" | "createdAt" | "updatedAt">): Promise<BlogPost> {
+    const id = randomUUID();
+    const now = new Date().toISOString();
+    const blogPost: BlogPost = {
+      ...post,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.blogPosts.set(id, blogPost);
+    return blogPost;
+  }
+
+  async updateBlogPost(id: string, updates: Partial<Omit<BlogPost, "id" | "createdAt">>): Promise<BlogPost | undefined> {
+    const existing = this.blogPosts.get(id);
+    if (!existing) return undefined;
+
+    const updated: BlogPost = {
+      ...existing,
+      ...updates,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    this.blogPosts.set(id, updated);
+    return updated;
+  }
+
+  async getBlogPost(id: string): Promise<BlogPost | undefined> {
+    return this.blogPosts.get(id);
+  }
+
+  async getAllBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values()).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }
+
+  async deleteBlogPost(id: string): Promise<boolean> {
+    return this.blogPosts.delete(id);
   }
 }
 
