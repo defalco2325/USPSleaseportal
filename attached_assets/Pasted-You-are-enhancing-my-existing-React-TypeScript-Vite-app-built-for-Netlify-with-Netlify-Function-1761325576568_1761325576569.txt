@@ -1,0 +1,191 @@
+You are enhancing my existing React + TypeScript + Vite app (built for Netlify with Netlify Functions) by adding a secure /admin dashboard that aggregates and manages all form submissions for the valuation site. Do not modify or break existing pages, valuation endpoints, styles, or routing. Only add files and minimal wiring.
+
+Scope
+
+We already have:
+
+Frontend React SPA (Vite)
+
+Functions: /api/valuations (POST create stage 1, PATCH stage 2, GET by id) and /api/submit (finalize & email)
+
+Optional /contact form
+
+You will add a /admin area to view stats, list submissions, export CSV, resend emails, and delete records.
+
+Data (use Netlify Blobs)
+
+Store/admin-index the following (don’t break existing behavior):
+
+Valuation submission record val:${id} (already created by my endpoints). Ensure it contains/merges:
+
+{ id, contact:{ fullName, email }, property:{ street, city, state, zip, rentAnnual, taxesAnnual, insuranceAnnual, squareFeet, taxReimbursed }, stage: 1|2|3, conservative?, optimistic?, createdAt, updatedAt }
+
+Admin index vals:index — array of { id, email, street, city, state, zip, stage, createdAt, updatedAt } for quick listing.
+
+Leads (contact form) lead:${id} — { id, name, email, phone?, message?, page?, createdAt }
+
+Admin index leads:index — array of { id, name, email, createdAt }
+
+When /api/valuations (POST/PATCH) and /api/submit run, append/update the vals:index. Do not change their external API shape.
+
+New Netlify Functions (TypeScript + Zod)
+
+Create under /netlify/functions. All admin endpoints require auth via JWT cookie. Add helpers _auth.ts and _blobs.ts.
+
+_auth.ts
+
+signToken(payload) using jsonwebtoken
+
+requireAdmin(event) → reads admin_token from cookie, verifies JWT with JWT_SECRET, role must be admin
+
+cookie helpers (HttpOnly; Secure; SameSite=Strict; Path=/)
+
+_blobs.ts
+
+thin wrappers for getJSON, setJSON, deleteJSON
+
+helpers to maintain vals:index and leads:index
+
+CSV builder utility
+
+api-admin-login.ts (POST)
+
+body: { username, password }
+
+compare to env: ADMIN_USER, ADMIN_PASS
+
+on success, set admin_token cookie (JWT { role:'admin', sub: username }, exp 7d), return { ok:true }
+
+on failure, 401
+
+api-admin-me.ts (GET)
+
+validates JWT, returns { role:'admin', user: { email: <username> } }
+
+api-admin-stats.ts (GET)
+
+returns { totalValuations, completedReports, leadsTotal, conversionRate }
+
+completedReports = count where stage === 3 (or where conservative/optimistic exist)
+
+conversionRate = completedReports / totalValuations * 100
+
+api-admin-valuations.ts
+
+GET ?q=&stage=&page=&limit= → list from vals:index with server-side filtering/search (by email/domain/address) and pagination; join in summary fields if present (conservative/optimistic)
+
+DELETE /:id → delete the valuation record and remove from vals:index (do not delete sent emails; just data)
+
+POST /:id/resend → re-use existing email logic by internally calling the same code path used in /api/submit (without changing its external API)
+
+api-admin-leads.ts
+
+GET ?q=&page=&limit= → list from leads:index
+
+DELETE /:id → delete lead and remove from leads:index
+
+POST (optional) create a lead record (used by public /contact if needed)
+
+api-admin-export.ts
+
+GET ?type=valuations|leads → stream CSV with appropriate headers (id, email, address, dates, status/stage, etc.)
+
+Note: Do not alter the request/response signatures of /api/valuations and /api/submit; just ensure they also maintain the admin indexes via _blobs.ts when they run.
+
+Frontend (React + TS)
+
+Add these files; keep styles aligned with current branding.
+
+src/components/admin/ProtectedRoute.tsx
+
+on mount, call /api/admin/me; if 401, redirect to /admin/login
+
+src/pages/admin/Login.tsx
+
+clean branded login (username+password) → POST /api/admin/login → redirect /admin
+
+src/pages/admin/Dashboard.tsx
+
+4 stat cards (animated): Total Valuations, Completed Reports, Leads, Conversion Rate
+
+Quick links to “View Valuations” and “View Leads”
+
+src/pages/admin/Valuations.tsx
+
+Table with: Name/Email, Address (street/city/state), Stage (pill), Conservative, Optimistic, Created, Updated, Actions
+
+Toolbar: search box, stage filter, Export CSV button
+
+Actions: Resend Email, Delete
+
+Server-side pagination
+
+src/pages/admin/Leads.tsx
+
+Table with: Name, Email, Phone, Message (truncated), Page, Date, Actions (Delete), Export CSV button
+
+Router wiring (do not break existing routes):
+
+/admin/login
+
+/admin → Dashboard (ProtectedRoute)
+
+/admin/valuations → Valuations table (ProtectedRoute)
+
+/admin/leads → Leads table (ProtectedRoute)
+
+Netlify config (extend, don’t replace)
+
+netlify.toml must already have SPA fallback and API redirect. Ensure:
+
+[build]
+command = "npm run build"
+publish = "dist"
+
+[functions]
+node_bundler = "esbuild"
+external_node_modules = ["zod","jsonwebtoken","node-fetch"]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+Environment Variables (add to .env.example, no real values committed)
+ADMIN_USER=admin
+ADMIN_PASS=change-me
+JWT_SECRET=super-secret
+
+
+(Reuse existing SENDGRID_API_KEY, FROM_EMAIL, GOOGLE_MAPS_API_KEY already configured.)
+
+Acceptance Tests (must pass)
+
+Hitting /admin unauthenticated redirects to /admin/login.
+
+Login with ADMIN_USER / ADMIN_PASS sets HttpOnly cookie and loads Dashboard.
+
+Dashboard shows accurate totals and conversion rate.
+
+Valuations list paginates, searches, and filters by stage; Resend Email triggers an email using existing template; Delete removes the record and it disappears from the list.
+
+Leads list shows contact submissions with Delete and Export CSV working.
+
+/api/* admin endpoints return 401/403 if not authenticated.
+
+Existing public site, valuation flow, and /api/valuations + /api/submit continue to work unchanged.
+
+At completion, output:
+
+New files created
+
+Existing files modified (router only)
+
+New dependencies added to package.json
+
+Any netlify.toml edits made
