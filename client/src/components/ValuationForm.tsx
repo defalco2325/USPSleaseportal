@@ -114,13 +114,22 @@ export default function ValuationForm() {
       const lowEstimatedValue = Math.round(netOperatingIncome / 0.12);
       const highEstimatedValue = Math.round(netOperatingIncome / 0.08);
 
-      const res = await apiRequest("PATCH", `/api/valuations/${valuationId}`, {
+      // Update valuation with property details
+      const patchRes = await apiRequest("PATCH", `/api/valuations/${valuationId}`, {
         ...data,
         lowEstimatedValue,
         highEstimatedValue,
         stage2Completed: true,
       });
-      return await res.json();
+      const patchData = await patchRes.json();
+
+      // Submit to send email with Street View
+      const submitRes = await apiRequest("POST", "/api/submit", {
+        id: valuationId,
+      });
+      const submitData = await submitRes.json();
+
+      return { ...patchData, emailSent: submitData.ok };
     },
     onSuccess: (data: any) => {
       setCalculatedValues({
@@ -130,7 +139,7 @@ export default function ValuationForm() {
       setStage(3);
       toast({
         title: "Valuation calculated!",
-        description: "Here's your estimated property value range.",
+        description: "We've emailed your detailed report with property images.",
       });
     },
     onError: () => {
@@ -197,7 +206,7 @@ export default function ValuationForm() {
           </div>
 
           <p className="text-sm text-muted-foreground mt-6">
-            Thank you for submitting your information. Our team will contact you at <strong>{stage1Data?.email}</strong> with next steps.
+            We've sent a detailed valuation report with property images to <strong>{stage1Data?.email}</strong>. Our team will contact you within 24-48 hours to discuss next steps.
           </p>
         </div>
       </Card>
