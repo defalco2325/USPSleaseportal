@@ -34,6 +34,7 @@ Preferred communication style: Simple, everyday language.
 - `/about` - Company mission and values
 - `/contact` - Contact form for inquiries
 - `/blog` - Blog listing page with category filtering (6 categories, 9 articles)
+- `/blog/:slug` - Individual blog post pages with full content and CTAs
 - `/valuation` - Multi-stage property valuation calculator
 
 **Design Principles:**
@@ -70,6 +71,58 @@ Preferred communication style: Simple, everyday language.
 - Database connection configured via `DATABASE_URL` environment variable
 
 **Rationale:** The app is primarily static/frontend-focused. The backend exists mainly to serve the SPA and could handle future API needs (user authentication, lead capture to database). Currently, form submissions go through Netlify Forms (no backend processing needed).
+
+### Blog System
+
+**Overview:**
+- 9 comprehensive blog posts covering USPS property sales topics
+- Individual pages for each post with full content and conversion-focused CTAs
+- Category-based filtering and related articles navigation
+
+**Blog Data Structure:**
+- Centralized blog data in `client/src/data/blogPosts.ts`
+- Each post includes: slug, title, excerpt, category, date, readTime, featured flag
+- Full content structure: intro, sections (heading + content array), conclusion
+
+**Blog Categories:**
+- Leases & Contracts (2 posts)
+- Valuation (1 post)
+- Sales Tips (4 posts)
+- Tax & Legal (1 post)
+- Market Trends (1 post)
+
+**Blog Posts:**
+1. "Understanding USPS Lease Agreements" - Lease terms and property value impact
+2. "Top 5 Factors That Determine Your Post Office Property Value" - Key valuation drivers
+3. "How to Prepare Your USPS Property for Sale in 2025" - Pre-sale checklist
+4. "USPS Lease Renewals: What Happens When Your Lease Expires?" - Renewal patterns
+5. "Tax Implications of Selling a USPS-Leased Property" - Tax planning and 1031 exchanges
+6. "Post Office Investment Trends: What Buyers Look for in 2025" - Market insights
+7. "Common Mistakes to Avoid When Selling Your Post Office" - Costly pitfalls
+8. "How Long Does It Take to Sell a USPS-Leased Property?" - Timeline expectations
+9. "Evaluating Buyer Offers: Beyond the Purchase Price" - Offer assessment
+
+**Blog Listing Features (`/blog`):**
+- Featured posts section (larger cards, 2 posts)
+- Recent articles grid (7 posts, 3-column layout)
+- Category filter tabs (All + 5 specific categories)
+- Sticky category navigation with backdrop blur
+
+**Individual Blog Post Pages (`/blog/:slug`):**
+- Full article content with multiple sections
+- Professional typography and readability
+- Highlighted conclusion box
+- Prominent CTA card with dual buttons:
+  - "Get Free Valuation" → `/valuation`
+  - "Contact Us" → `/contact`
+- Related articles section (up to 3 posts from same category)
+- Back to Blog navigation
+
+**SEO Optimization:**
+- Unique title and description meta tags per post
+- Canonical URLs for each blog post
+- Open Graph tags for social sharing
+- Structured content with proper heading hierarchy
 
 ### Contact Form Strategy
 
