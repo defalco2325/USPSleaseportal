@@ -19,7 +19,7 @@ export default function Header() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/guide", label: "How to Sell Your Post Office: Complete Guide 2025" },
-    { href: import.meta.env.VITE_VALUATION_URL || "#", label: "FREE Valuation Report", external: true },
+    { href: "/valuation", label: "FREE Valuation Calculator" },
     { href: "/about", label: "About" },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
@@ -43,33 +43,20 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
-            {navLinks.map((link) =>
-              link.external ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-primary-foreground/90 hover:text-primary transition-colors"
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <span
+                  className={`text-sm font-medium transition-colors cursor-pointer ${
+                    location === link.href
+                      ? "text-primary"
+                      : "text-primary-foreground/90 hover:text-primary"
+                  }`}
                   data-testid={`link-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                 >
                   {link.label}
-                </a>
-              ) : (
-                <Link key={link.href} href={link.href}>
-                  <span
-                    className={`text-sm font-medium transition-colors cursor-pointer ${
-                      location === link.href
-                        ? "text-primary"
-                        : "text-primary-foreground/90 hover:text-primary"
-                    }`}
-                    data-testid={`link-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {link.label}
-                  </span>
-                </Link>
-              )
-            )}
+                </span>
+              </Link>
+            ))}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -89,35 +76,21 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-foreground border-t border-border/30">
           <nav className="px-4 py-6 space-y-4">
-            {navLinks.map((link) =>
-              link.external ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-sm font-medium text-primary-foreground/90 hover:text-primary transition-colors py-2"
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <span
+                  className={`block text-sm font-medium transition-colors py-2 cursor-pointer ${
+                    location === link.href
+                      ? "text-primary"
+                      : "text-primary-foreground/90 hover:text-primary"
+                  }`}
                   data-testid={`mobile-link-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.label}
-                </a>
-              ) : (
-                <Link key={link.href} href={link.href}>
-                  <span
-                    className={`block text-sm font-medium transition-colors py-2 cursor-pointer ${
-                      location === link.href
-                        ? "text-primary"
-                        : "text-primary-foreground/90 hover:text-primary"
-                    }`}
-                    data-testid={`mobile-link-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </span>
-                </Link>
-              )
-            )}
+                </span>
+              </Link>
+            ))}
           </nav>
         </div>
       )}

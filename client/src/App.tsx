@@ -8,6 +8,7 @@ import Guide from "@/pages/Guide";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
+import Valuation from "@/pages/Valuation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/blog" component={Blog} />
+      <Route path="/valuation" component={Valuation} />
       <Route component={NotFound} />
     </Switch>
   );

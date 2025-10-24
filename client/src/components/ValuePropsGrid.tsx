@@ -32,7 +32,7 @@ const benefits = [
 ];
 
 export default function ValuePropsGrid() {
-  const valuationUrl = import.meta.env.VITE_VALUATION_URL || "#";
+  const valuationUrl = "/valuation";
 
   return (
     <section className="py-20 bg-background" id="why-sell">
@@ -74,7 +74,7 @@ export default function ValuePropsGrid() {
             asChild
             data-testid="button-start-process"
           >
-            <a href={valuationUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+            <a href={valuationUrl} className="flex items-center gap-2">
               Start the Process
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </a>

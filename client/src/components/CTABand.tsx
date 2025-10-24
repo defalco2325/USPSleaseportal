@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export default function CTABand() {
-  const valuationUrl = import.meta.env.VITE_VALUATION_URL || "#";
+  const valuationUrl = "/valuation";
 
   return (
     <section className="py-16 bg-gradient-to-r from-primary via-primary to-primary/90 relative overflow-hidden">
@@ -22,7 +22,7 @@ export default function CTABand() {
             asChild
             data-testid="button-cta-valuation"
           >
-            <a href={valuationUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+            <a href={valuationUrl} className="flex items-center gap-2">
               Get My Free Valuation Report
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </a>

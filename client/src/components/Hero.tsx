@@ -3,7 +3,7 @@ import heroImage from "@assets/USPS_1761190745850.webp";
 import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
-  const valuationUrl = import.meta.env.VITE_VALUATION_URL || "#";
+  const valuationUrl = "/valuation";
 
   return (
     <section className="relative bg-background py-20 md:py-32 overflow-hidden">
@@ -12,11 +12,11 @@ export default function Hero() {
           <div className="space-y-8 animate-fade-in-up">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight tracking-tight">
               Sell Your USPS-Leased Post Office for{" "}
-              <span className="text-primary">Top Dollar</span> — Without Paying Broker Fees
+              <span className="text-primary">Top Dollar</span> — Pay Zero Broker Fees
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-              Get a confidential valuation and a strong cash offer from the largest post office buyers. 
-              No commissions. No hassle. Close in as few as 45 days.
+              We own multiple post offices and connect sellers directly with qualified buyers nationwide. 
+              Get a confidential valuation, strong cash offers, and close in as few as 45 days — with <strong>no commissions</strong>.
             </p>
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <Button
@@ -25,7 +25,7 @@ export default function Hero() {
                 asChild
                 data-testid="button-get-valuation"
               >
-                <a href={valuationUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <a href={valuationUrl} className="flex items-center gap-2">
                   Get a Free Property Valuation Report
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </a>
